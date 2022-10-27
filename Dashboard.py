@@ -38,7 +38,6 @@ def Gauge(ID):
     API_URL = "https://donnees-dashboard.herokuapp.com/"
     response = requests.get(API_URL) #Chargement des données
     content = json.loads(response.content.decode('utf-8'))
-    df = pd.DataFrame(content)
     Decision = list(pd.Series(content['decision']).values)
     ID_client = list(pd.Series(content['SK_ID_CURR']).values)
     probabilite_client = list(pd.Series(content['probabilite_client']).values)
@@ -77,9 +76,9 @@ def Caracteristiques_client(ID):
     'EXT_SOURCE_2',
     'EXT_SOURCE_3',
     'prediction']
-    DF_CAR = df[valeur]
-    DF_CAR.loc[DF_CAR["Duree_emploi_en_annee_brut"] < 0, "Duree_emploi_en_annee_brut"] = 0
-    Caracteristiques = DF_CAR.loc[DF_CAR['SK_ID_CURR']==ID]
+    df = df[valeur]
+    df.loc[df["Duree_emploi_en_annee_brut"] < 0, "Duree_emploi_en_annee_brut"] = 0
+    Caracteristiques = df.loc[df['SK_ID_CURR']==ID]
     return Caracteristiques
 
 
@@ -103,10 +102,10 @@ def Caracteristiques_client_similaires(ID):
     'EXT_SOURCE_2',
     'EXT_SOURCE_3',
     'prediction']
-    DF_CAR = df[valeur]
-    DF_CAR.loc[DF_CAR["Duree_emploi_en_annee_brut"] < 0, "Duree_emploi_en_annee_brut"] = 0
-    decision = list(DF_CAR.loc[DF_CAR['SK_ID_CURR'] == ID, 'prediction'])
-    Caracteristiques = DF_CAR.loc[DF_CAR['prediction'] == decision[0]]
+    df = df[valeur]
+    df.loc[df["Duree_emploi_en_annee_brut"] < 0, "Duree_emploi_en_annee_brut"] = 0
+    decision = list(df.loc[df['SK_ID_CURR'] == ID, 'prediction'])
+    Caracteristiques = df.loc[df['prediction'] == decision[0]]
     return Caracteristiques.describe()
 
 
@@ -132,10 +131,10 @@ def Caracteristiques_client_opposes(ID):
     'EXT_SOURCE_2',
     'EXT_SOURCE_3',
     'prediction']
-    DF_CAR = df[valeur]
-    DF_CAR.loc[DF_CAR["Duree_emploi_en_annee_brut"] < 0, "Duree_emploi_en_annee_brut"] = 0
-    decision = list(DF_CAR.loc[DF_CAR['SK_ID_CURR'] == ID,'prediction'])
-    Caracteristiques = DF_CAR.loc[DF_CAR['prediction'] != decision[0]]
+    df = df[valeur]
+    df.loc[df["Duree_emploi_en_annee_brut"] < 0, "Duree_emploi_en_annee_brut"] = 0
+    decision = list(df.loc[df['SK_ID_CURR'] == ID,'prediction'])
+    Caracteristiques = df.loc[df['prediction'] != decision[0]]
     return Caracteristiques.describe()
 
 
@@ -263,7 +262,13 @@ if st.sidebar.checkbox("Analyse visuelle", key=38):
     API_URL = "https://donnees-dashboard.herokuapp.com/"
     response = requests.get(API_URL)  # Chargement des données
     content = json.loads(response.content.decode('utf-8'))
-    Colonne = list(content.keys())
+    #Colonne = list(content.keys())
+    Colonne = ['EXT_SOURCE_1','EXT_SOURCE_2',
+    'EXT_SOURCE_3','Age_en_annee_brut',
+    'Annuite_mensuel_credit_apres_modelisation','Annuite_mensuel_credit_avant_modelisation',
+    'AMT_ANNUITY','AMT_CREDIT','AMT_GOODS_PRICE','AMT_INCOME_TOTAL',
+    'DAYS_BIRTH','DAYS_EMPLOYED','Duree_emploi_en_annee_brut','INCOME_PER_PERSON',
+    'Montant_credit_apres_modelisation','Montant_credit_avant_modelisation','Nombre_enfants']
     champs = st.selectbox(
         'Quel champ voulez vous analyser?',
         Colonne)
